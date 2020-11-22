@@ -15,37 +15,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        searchButton = findViewById(R.id.search_button)
-        resNameView = findViewById(R.id.resource_name)
-        resIdView = findViewById(R.id.resource_id)
-        resTypeView = findViewById(R.id.resource_type)
-        resValueView = findViewById(R.id.resource_value)
-        resTypeSpinner = findViewById(R.id.resource_type_picker)
-
-        val spinnerArray : MutableList<String> = ArrayList()
-        spinnerArray.add("Auto detect")
-        spinnerArray.addAll(ResourcesUtils.resTypes)
-        val resTypesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerArray)
-        resTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        resTypeSpinner.adapter = resTypesAdapter
-
-        searchButton.setOnClickListener { view ->
-            val resName = resNameView.text.toString()
-            val resource : Resource?
-            if (resTypeSpinner.selectedItemPosition == 0) {
-                resource = ResourcesUtils.getAndroidResourceByName(resName, this)
-            } else {
-                resource = ResourcesUtils.getAndroidResourceByName(resName, resTypeSpinner.selectedItem.toString(), this)
-            }
-            if (resource == null) {
-                resIdView.text = "Resource not found"
-                resTypeView.text = ""
-                resValueView.text = ""
-            } else {
-                resIdView.text = "Id: 0x${Integer.toHexString(resource.resId)}";
-                resTypeView.text = "Type: ${resource.resType}"
-                resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource.resId, resource.resType, this)}"
-            }
-        }
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        val fragment = ResourcesValueViewerFragment()
+        fragmentTransaction.add(R.id.content_root, fragment)
+        fragmentTransaction.commit()
     }
 }
