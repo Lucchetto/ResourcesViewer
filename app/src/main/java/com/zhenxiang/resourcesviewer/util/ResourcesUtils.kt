@@ -8,13 +8,14 @@ class ResourcesUtils {
     companion object {
         val resTypes = arrayOf("dimen", "string", "bool", "integer", "color")
         var value : String? = null;
-        fun getResourceValue(resId : Int, resType : String, context: Context) : String? {
-            value = when (resType) {
-                "dimen" -> "${context.resources.getDimensionPixelSize(resId).toString()} px"
-                "string" -> context.getString(resId)
-                "bool" -> context.resources.getBoolean(resId).toString()
-                "integer" -> context.resources.getInteger(resId).toString()
-                "color" -> "#${Integer.toHexString(context.resources.getColor(resId))}"
+        fun getResourceValue(resource : Resource, context: Context) : String? {
+            val resources = context.packageManager.getResourcesForApplication(resource.packageName)
+            value = when (resource.resType) {
+                "dimen" -> "${resources.getDimensionPixelSize(resource.resId).toString()} px"
+                "string" -> resources.getString(resource.resId)
+                "bool" -> resources.getBoolean(resource.resId).toString()
+                "integer" -> resources.getInteger(resource.resId).toString()
+                "color" -> "#${Integer.toHexString(resources.getColor(resource.resId))}"
                 else -> null
             }
             return value

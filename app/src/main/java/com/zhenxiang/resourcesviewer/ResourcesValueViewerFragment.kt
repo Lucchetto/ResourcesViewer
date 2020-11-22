@@ -15,6 +15,7 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
  */
 class ResourcesValueViewerFragment : Fragment() {
     private lateinit var searchButton : Button
+    private lateinit var searchPackageView : EditText
     private lateinit var resNameView : EditText
     private lateinit var packageNameView : TextView
     private lateinit var resIdView : TextView
@@ -32,6 +33,7 @@ class ResourcesValueViewerFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val contentView = inflater.inflate(R.layout.fragment_resources_value_viewer, container, false)
+        searchPackageView = contentView.findViewById(R.id.package_to_search)
         searchButton = contentView.findViewById(R.id.search_button)
         resNameView = contentView.findViewById(R.id.resource_name)
         packageNameView = contentView.findViewById(R.id.package_name)
@@ -50,13 +52,19 @@ class ResourcesValueViewerFragment : Fragment() {
         searchButton.setOnClickListener { view ->
             val resName = resNameView.text.toString()
             val resource : Resource?
-            resource = if (resTypeSpinner.selectedItemPosition == 0) {
-                ResourcesUtils.getResourceByName(resName, "android", this.requireContext())
+            val searchPackage : String
+            if (searchPackageView.text.toString() == "") {
+                searchPackage = "android"
             } else {
-                ResourcesUtils.getResourceByName(resName, resTypeSpinner.selectedItem.toString(), "android", this.requireContext())
+                searchPackage = searchPackageView.text.toString()
+            }
+            resource = if (resTypeSpinner.selectedItemPosition == 0) {
+                ResourcesUtils.getResourceByName(resName, searchPackage, this.requireContext())
+            } else {
+                ResourcesUtils.getResourceByName(resName, resTypeSpinner.selectedItem.toString(), searchPackage, this.requireContext())
             }
             if (resource == null) {
-                packageNameView.text = ""
+                packageNameView.text = searchPackage
                 resIdView.text = "Resource not found"
                 resTypeView.text = ""
                 resValueView.text = ""
@@ -64,7 +72,7 @@ class ResourcesValueViewerFragment : Fragment() {
                 packageNameView.text = "Package name: ${resource.packageName}"
                 resIdView.text = "Id: 0x${Integer.toHexString(resource.resId)}";
                 resTypeView.text = "Type: ${resource.resType}"
-                resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource.resId, resource.resType, this.requireContext())}"
+                resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource, this.requireContext())}"
             }
         }
         return contentView
