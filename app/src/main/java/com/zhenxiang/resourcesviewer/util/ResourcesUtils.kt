@@ -10,7 +10,7 @@ class ResourcesUtils {
         var value : String? = null;
         fun getResourceValue(resId : Int, resType : String, context: Context) : String? {
             value = when (resType) {
-                "dimen" -> context.resources.getDimensionPixelSize(resId).toString()
+                "dimen" -> "${context.resources.getDimensionPixelSize(resId).toString()} px"
                 "string" -> context.getString(resId)
                 "bool" -> context.resources.getBoolean(resId).toString()
                 "integer" -> context.resources.getInteger(resId).toString()
