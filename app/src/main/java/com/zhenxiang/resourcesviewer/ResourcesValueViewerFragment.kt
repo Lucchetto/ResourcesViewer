@@ -16,6 +16,7 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
 class ResourcesValueViewerFragment : Fragment() {
     private lateinit var searchButton : Button
     private lateinit var resNameView : EditText
+    private lateinit var packageNameView : TextView
     private lateinit var resIdView : TextView
     private lateinit var resTypeView : TextView
     private lateinit var resValueView : TextView
@@ -33,6 +34,7 @@ class ResourcesValueViewerFragment : Fragment() {
         val contentView = inflater.inflate(R.layout.fragment_resources_value_viewer, container, false)
         searchButton = contentView.findViewById(R.id.search_button)
         resNameView = contentView.findViewById(R.id.resource_name)
+        packageNameView = contentView.findViewById(R.id.package_name)
         resIdView = contentView.findViewById(R.id.resource_id)
         resTypeView = contentView.findViewById(R.id.resource_type)
         resValueView = contentView.findViewById(R.id.resource_value)
@@ -49,15 +51,17 @@ class ResourcesValueViewerFragment : Fragment() {
             val resName = resNameView.text.toString()
             val resource : Resource?
             resource = if (resTypeSpinner.selectedItemPosition == 0) {
-                ResourcesUtils.getAndroidResourceByName(resName, this.requireContext())
+                ResourcesUtils.getResourceByName(resName, "android", this.requireContext())
             } else {
-                ResourcesUtils.getAndroidResourceByName(resName, resTypeSpinner.selectedItem.toString(), this.requireContext())
+                ResourcesUtils.getResourceByName(resName, resTypeSpinner.selectedItem.toString(), "android", this.requireContext())
             }
             if (resource == null) {
+                packageNameView.text = ""
                 resIdView.text = "Resource not found"
                 resTypeView.text = ""
                 resValueView.text = ""
             } else {
+                packageNameView.text = "Package name: ${resource.packageName}"
                 resIdView.text = "Id: 0x${Integer.toHexString(resource.resId)}";
                 resTypeView.text = "Type: ${resource.resType}"
                 resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource.resId, resource.resType, this.requireContext())}"
