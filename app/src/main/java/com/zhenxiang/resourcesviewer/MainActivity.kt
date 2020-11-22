@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                 resTypeView.text = ""
                 resValueView.text = ""
             } else {
-                resIdView.text = "Id: ${resource.resId}";
+                resIdView.text = "Id: 0x${Integer.toHexString(resource.resId)}";
                 resTypeView.text = "Type: ${resource.resType}"
                 resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource.resId, resource.resType, this)}"
             }
