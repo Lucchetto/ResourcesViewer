@@ -28,6 +28,15 @@ class ResourcesUtils {
             }
             return null
         }
+
+        fun getAndroidResourceByName(resName: String, resType : String, context: Context) : Resource? {
+            val resId = getResourceIdByName(resName, resType, "android", context)
+            if (resId != 0) {
+                return Resource(resId, resType)
+            }
+            return null
+        }
+
         fun getResourceIdByName(resName: String, resType : String, packageName : String, context : Context) : Int {
             val resources = context.packageManager.getResourcesForApplication(packageName)
             return resources.getIdentifier(resName, resType, packageName)
