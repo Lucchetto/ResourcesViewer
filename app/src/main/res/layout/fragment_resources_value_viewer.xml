@@ -81,6 +81,12 @@
             android:id="@+id/resource_type_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/show_packages_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select package" />
     </LinearLayout>
 
 </FrameLayout>

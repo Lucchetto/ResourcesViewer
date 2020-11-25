@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorFragment
 import com.zhenxiang.resourcesviewer.util.PackageUtils
 import com.zhenxiang.resourcesviewer.util.ResourcesUtils
 
@@ -25,6 +26,7 @@ class ResourcesValueViewerFragment : Fragment() {
     private lateinit var resTypeView : TextView
     private lateinit var resValueView : TextView
     private lateinit var resTypeSpinner : Spinner
+    private lateinit var showPackageList : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,7 @@ class ResourcesValueViewerFragment : Fragment() {
         resTypeView = contentView.findViewById(R.id.resource_type)
         resValueView = contentView.findViewById(R.id.resource_value)
         resTypeSpinner = contentView.findViewById(R.id.resource_type_picker)
+        showPackageList = contentView.findViewById(R.id.show_packages_list)
 
         val spinnerArray : MutableList<String> = ArrayList()
         spinnerArray.add("Auto detect")
@@ -84,6 +87,13 @@ class ResourcesValueViewerFragment : Fragment() {
             } else {
                 showError(true, "Package not found")
             }
+        }
+
+        showPackageList.setOnClickListener { view ->
+            val fragmentManager = requireFragmentManager()
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.add(R.id.content_root, PackageSelectorFragment())
+            fragmentTransaction.commit()
         }
         return contentView
     }
