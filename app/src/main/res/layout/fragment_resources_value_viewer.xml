@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
     tools:context=".ResourcesValueViewerFragment">
 
     <LinearLayout
@@ -10,7 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="start|center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:clipChildren="false">
 
         <EditText
             android:id="@+id/package_to_search"
@@ -32,7 +34,7 @@
                 android:hint="Resource name"
                 android:inputType="textNoSuggestions" />
 
-            <Button
+            <com.revengeos.revengeui.button.RevengeUIButton
                 android:id="@+id/search_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
-        <Button
+        <com.revengeos.revengeui.button.RevengeUIButton
             android:id="@+id/show_packages_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

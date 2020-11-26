@@ -1,2 +1,3 @@
-include ':app'
+include ':app',':revengeui'
 rootProject.name = "Resources Viewer"
+project(':revengeui').projectDir = new File(settingsDir, '../RevengeUI/revengeui')
