@@ -9,6 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zhenxiang.resourcesviewer.R
+import kotlinx.android.synthetic.main.fragment_package_selector.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 
@@ -19,10 +24,18 @@ import java.util.*
  */
 class PackageSelectorFragment : Fragment() {
 
-    lateinit var packagesAdapter: PackageItemAdapter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
+        val packagesRecyclerView = contentView.findViewById<RecyclerView>(R.id.packages_list)
+
         val nameComparator = object : Comparator<PackageInfo?> {
             override fun compare(arg0: PackageInfo?, arg1: PackageInfo?): Int {
                 val name0 =
@@ -40,21 +53,17 @@ class PackageSelectorFragment : Fragment() {
                 } else name0.compareTo(name1, ignoreCase = true)
             }
         }
-        val packagesList = requireContext().packageManager.getInstalledPackages(0)
-        Collections.sort(packagesList, nameComparator)
-        packagesAdapter =
-            PackageItemAdapter(requireContext(), packagesList, requireFragmentManager(), this)
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
-        val packagesRecyclerView = contentView.findViewById<RecyclerView>(R.id.packages_list)
         packagesRecyclerView.layoutManager = LinearLayoutManager(context)
-        packagesRecyclerView.adapter = packagesAdapter
+        CoroutineScope(Dispatchers.IO).launch {
+            val packagesList = requireContext().packageManager.getInstalledPackages(0)
+            Collections.sort(packagesList, nameComparator)
+            val packagesAdapter = PackageItemAdapter(requireContext(), packagesList, requireFragmentManager(), this@PackageSelectorFragment)
+            withContext(Dispatchers.Main) {
+                packagesRecyclerView.adapter = packagesAdapter
+                loading_spinner.visibility = View.GONE
+            }
+        }
         return contentView
     }
 
