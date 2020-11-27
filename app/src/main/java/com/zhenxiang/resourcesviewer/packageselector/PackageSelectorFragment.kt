@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.revengeos.revengeui.fragment.FullscreenDialogFragment
 import com.zhenxiang.resourcesviewer.R
 import kotlinx.android.synthetic.main.fragment_package_selector.*
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +24,7 @@ import java.util.*
  * Use the [PackageSelectorFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class PackageSelectorFragment : Fragment() {
+class PackageSelectorFragment : FullscreenDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

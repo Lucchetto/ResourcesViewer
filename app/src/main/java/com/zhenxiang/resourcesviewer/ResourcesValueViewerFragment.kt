@@ -90,10 +90,8 @@ class ResourcesValueViewerFragment : Fragment() {
         }
 
         showPackageList.setOnClickListener { view ->
-            val fragmentManager = requireFragmentManager()
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.add(R.id.content_root, PackageSelectorFragment())
-            fragmentTransaction.commit()
+            val packageSelector = PackageSelectorFragment()
+            packageSelector.show(requireFragmentManager(), "tag")
         }
         return contentView
     }
