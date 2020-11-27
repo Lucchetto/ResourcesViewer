@@ -88,7 +88,7 @@
             android:id="@+id/show_packages_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select package" />
+            android:text="@string/package_selector_title" />
     </LinearLayout>
 
 </FrameLayout>
