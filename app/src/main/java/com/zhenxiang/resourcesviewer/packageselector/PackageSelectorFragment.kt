@@ -38,22 +38,12 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
         val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
         val packagesRecyclerView = contentView.findViewById<RecyclerView>(R.id.packages_list)
 
-        val nameComparator = object : Comparator<PackageInfo?> {
-            override fun compare(arg0: PackageInfo?, arg1: PackageInfo?): Int {
-                val name0 =
-                    arg0?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
-                val name1 =
-                    arg1?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
-                if (name0 == null && name1 == null) {
-                    return 0
-                }
-                if (name0 == null) {
-                    return -1
-                }
-                return if (name1 == null) {
-                    1
-                } else name0.compareTo(name1, ignoreCase = true)
-            }
+        val nameComparator = Comparator<PackageInfo> { arg0, arg1 ->
+            val name0 =
+                arg0?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
+            val name1 =
+                arg1?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
+            name0.compareTo(name1, ignoreCase = true)
         }
 
         packagesRecyclerView.layoutManager = LinearLayoutManager(context)
