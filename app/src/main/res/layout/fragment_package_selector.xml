@@ -31,17 +31,17 @@
                 android:layout_height="?attr/actionBarSize"
                 android:visibility="invisible"
                 app:layout_collapseMode="pin"/>
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/package_selector_menu_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:layout_gravity="bottom"
-                app:contentInsetStartWithNavigation="0dp"
-                app:menu="@menu/package_selector_menu"
-                app:layout_collapseMode="pin"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/package_selector_menu_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:menu="@menu/package_selector_menu"
+        app:layout_behavior=".packageselector.HeaderBehaviour"
+        android:elevation="5dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/packages_list"
