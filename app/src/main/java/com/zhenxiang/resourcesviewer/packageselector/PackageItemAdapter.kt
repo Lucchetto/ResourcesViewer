@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -16,19 +18,21 @@ import com.zhenxiang.resourcesviewer.R
 
 class PackageItemAdapter(
     context: Context,
-    installedPackages: List<PackageInfo>,
+    installedPackages: MutableList<PackageInfo>,
     fragmentManager: FragmentManager,
     fragment: Fragment
-) : RecyclerView.Adapter<PackageItemAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PackageItemAdapter.ViewHolder>(), Filterable {
 
     private val packageManager: PackageManager
-    private val mInstalledPackages: List<PackageInfo>
+    private val mInstalledPackages: MutableList<PackageInfo>
+    private val mInstalledPackagesAll : List<PackageInfo>
     private val fragmentManager: FragmentManager
     private val fragment: Fragment
 
     init {
         packageManager = context.packageManager
         mInstalledPackages = installedPackages
+        mInstalledPackagesAll = mInstalledPackages.toList()
         this.fragmentManager = fragmentManager
         this.fragment = fragment
     }
@@ -49,6 +53,36 @@ class PackageItemAdapter(
 
     override fun getItemCount(): Int {
         return mInstalledPackages.size
+    }
+
+    private val packageFilter = object : Filter() {
+        override fun performFiltering(charSequence: CharSequence): FilterResults {
+            var filteredList = mutableListOf<PackageInfo>()
+            if (charSequence.toString().isEmpty()) {
+                filteredList = mInstalledPackagesAll.toMutableList()
+            } else {
+                for (packageInfo in mInstalledPackagesAll) {
+                    if (packageInfo.packageName.contains(charSequence, true)
+                            or packageInfo.applicationInfo.loadLabel(packageManager).contains(charSequence, true)) {
+                        filteredList.add(packageInfo)
+                    }
+                }
+            }
+            val filterResults = FilterResults()
+            filterResults.values = filteredList
+            return filterResults
+        }
+
+        override fun publishResults(charSequence : CharSequence, filteredResults : FilterResults) {
+            mInstalledPackages.clear()
+            mInstalledPackages.addAll(filteredResults.values as Collection<PackageInfo>)
+            notifyDataSetChanged()
+        }
+
+    }
+
+    override fun getFilter(): Filter {
+        return packageFilter
     }
 
     class ViewHolder(

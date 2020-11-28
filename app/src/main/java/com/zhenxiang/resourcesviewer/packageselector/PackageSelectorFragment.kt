@@ -1,17 +1,14 @@
 package com.zhenxiang.resourcesviewer.packageselector
 
-import android.app.Activity
 import android.content.pm.PackageInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -57,10 +54,11 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
 
         val collapsingToolbar = contentView.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
         val toolbar = contentView.findViewById<Toolbar>(R.id.package_selector_menu_toolbar)
+        val searchMenu = toolbar.menu.findItem(R.id.package_search)
+        val searchView = searchMenu.actionView as SearchView
         toolbar.setOnMenuItemClickListener {
             collapsingToolbar.isTitleEnabled = false
-            if (it.itemId == R.id.app_bar_search) {
-                val searchView = it.actionView as SearchView
+            if (it == searchMenu) {
                 val searchTextView = searchView.findViewById<AutoCompleteTextView>(androidx.appcompat.R.id.search_src_text)
                 searchTextView.setOnFocusChangeListener { view, hasFocus ->
                     if (!hasFocus) {
@@ -78,12 +76,24 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
         CoroutineScope(Dispatchers.IO).launch {
             val packagesList = requireContext().packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
-            val packagesAdapter = PackageItemAdapter(requireContext(), packagesList, requireFragmentManager(), this@PackageSelectorFragment)
             withContext(Dispatchers.Main) {
+                val packagesAdapter = PackageItemAdapter(requireContext(), packagesList, requireFragmentManager(), this@PackageSelectorFragment)
                 packagesRecyclerView.adapter = packagesAdapter
+                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        packagesAdapter.filter.filter(newText)
+                        return false
+                    }
+
+                })
                 loading_spinner.visibility = View.GONE
             }
         }
+
         return contentView
     }
 
