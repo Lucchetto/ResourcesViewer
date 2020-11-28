@@ -10,16 +10,15 @@ import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.revengeos.revengeui.fragment.FullscreenDialogFragment
 import com.zhenxiang.resourcesviewer.R
 import kotlinx.android.synthetic.main.fragment_package_selector.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import java.lang.Exception
 import java.util.*
 
 
@@ -31,6 +30,7 @@ import java.util.*
 class PackageSelectorFragment : FullscreenDialogFragment() {
 
     val TAG = this.javaClass.name
+    private val scope = CoroutineScope(Job() + Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,11 +44,12 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
         val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
         val packagesRecyclerView = contentView.findViewById<RecyclerView>(R.id.packages_list)
 
+        val packageManager = contentView.context.packageManager
         val nameComparator = Comparator<PackageInfo> { arg0, arg1 ->
             val name0 =
-                arg0?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
+                arg0?.applicationInfo?.loadLabel(packageManager).toString()
             val name1 =
-                arg1?.applicationInfo?.loadLabel(requireContext().packageManager).toString()
+                arg1?.applicationInfo?.loadLabel(packageManager).toString()
             name0.compareTo(name1, ignoreCase = true)
         }
 
@@ -72,13 +73,15 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
             true
         }
 
-        packagesRecyclerView.layoutManager = LinearLayoutManager(context)
-        CoroutineScope(Dispatchers.IO).launch {
-            val packagesList = requireContext().packageManager.getInstalledPackages(0)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+            val packagesList = packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
+            val packagesAdapter = PackageItemAdapter(packageManager, packagesList, requireFragmentManager(), this@PackageSelectorFragment)
             withContext(Dispatchers.Main) {
-                val packagesAdapter = PackageItemAdapter(requireContext(), packagesList, requireFragmentManager(), this@PackageSelectorFragment)
+                packagesAdapter.setupSearchFilter()
+                packagesRecyclerView.layoutManager = LinearLayoutManager(context)
                 packagesRecyclerView.adapter = packagesAdapter
+                contentView.findViewById<View>(R.id.loading_spinner).visibility = View.GONE
                 searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
                         return false
@@ -90,11 +93,16 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
                     }
 
                 })
-                loading_spinner.visibility = View.GONE
             }
         }
 
         return contentView
+    }
+
+    suspend fun setupRecyclerView() {
+        scope.launch {
+            val packageManager = requireContext()
+        }
     }
 
     companion object {

@@ -17,20 +17,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zhenxiang.resourcesviewer.R
 
 class PackageItemAdapter(
-    context: Context,
+    packageManager: PackageManager,
     installedPackages: MutableList<PackageInfo>,
     fragmentManager: FragmentManager,
     fragment: Fragment
 ) : RecyclerView.Adapter<PackageItemAdapter.ViewHolder>(), Filterable {
 
-    private val packageManager: PackageManager
+    private val packageManager : PackageManager
     private val mInstalledPackages: MutableList<PackageInfo>
     private val mInstalledPackagesAll : List<PackageInfo>
     private val fragmentManager: FragmentManager
     private val fragment: Fragment
+    private lateinit var packageFilter : Filter
 
     init {
-        packageManager = context.packageManager
+        this.packageManager = packageManager
         mInstalledPackages = installedPackages
         mInstalledPackagesAll = mInstalledPackages.toList()
         this.fragmentManager = fragmentManager
@@ -55,30 +56,32 @@ class PackageItemAdapter(
         return mInstalledPackages.size
     }
 
-    private val packageFilter = object : Filter() {
-        override fun performFiltering(charSequence: CharSequence): FilterResults {
-            var filteredList = mutableListOf<PackageInfo>()
-            if (charSequence.toString().isEmpty()) {
-                filteredList = mInstalledPackagesAll.toMutableList()
-            } else {
-                for (packageInfo in mInstalledPackagesAll) {
-                    if (packageInfo.packageName.contains(charSequence, true)
+    fun setupSearchFilter() {
+        packageFilter = object : Filter() {
+            override fun performFiltering(charSequence: CharSequence): FilterResults {
+                var filteredList = mutableListOf<PackageInfo>()
+                if (charSequence.toString().isEmpty()) {
+                    filteredList = mInstalledPackagesAll.toMutableList()
+                } else {
+                    for (packageInfo in mInstalledPackagesAll) {
+                        if (packageInfo.packageName.contains(charSequence, true)
                             or packageInfo.applicationInfo.loadLabel(packageManager).contains(charSequence, true)) {
-                        filteredList.add(packageInfo)
+                            filteredList.add(packageInfo)
+                        }
                     }
                 }
+                val filterResults = FilterResults()
+                filterResults.values = filteredList
+                return filterResults
             }
-            val filterResults = FilterResults()
-            filterResults.values = filteredList
-            return filterResults
-        }
 
-        override fun publishResults(charSequence : CharSequence, filteredResults : FilterResults) {
-            mInstalledPackages.clear()
-            mInstalledPackages.addAll(filteredResults.values as Collection<PackageInfo>)
-            notifyDataSetChanged()
-        }
+            override fun publishResults(charSequence : CharSequence, filteredResults : FilterResults) {
+                mInstalledPackages.clear()
+                mInstalledPackages.addAll(filteredResults.values as Collection<PackageInfo>)
+                notifyDataSetChanged()
+            }
 
+        }
     }
 
     override fun getFilter(): Filter {
