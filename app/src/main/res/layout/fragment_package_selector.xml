@@ -7,7 +7,26 @@
     android:layout_height="match_parent"
     tools:context=".packageselector.PackageSelectorFragment">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.revengeos.revengeui.appbar.KeepWithinParentBoundsScrollingBehavior">
+
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/packages_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical" />
+    </FrameLayout>
+
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.RevengeUI.AppBarLayout"
@@ -37,18 +56,4 @@
         app:menu="@menu/package_selector_menu"
         app:layout_behavior=".packageselector.HeaderBehaviour"
         android:elevation="5dp"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/packages_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:windowBackground"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:scrollbars="vertical"/>
-
-    <ProgressBar
-        android:id="@+id/loading_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
