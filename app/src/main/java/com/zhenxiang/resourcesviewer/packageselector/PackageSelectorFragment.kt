@@ -9,16 +9,18 @@ import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.revengeos.revengeui.fragment.FullscreenDialogFragment
+import com.revengeos.revengeui.utils.NavigationModeUtils
 import com.zhenxiang.resourcesviewer.R
-import kotlinx.android.synthetic.main.fragment_package_selector.*
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.util.*
 
 
@@ -73,6 +75,17 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
             true
         }
 
+        if (NavigationModeUtils.isFullGestures(requireContext())) {
+            dialog?.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
+            val titleToolbar = contentView.findViewById<Toolbar>(R.id.title_toolbar)
+            ViewCompat.setOnApplyWindowInsetsListener(contentView) { view, inset ->
+                val topInset = WindowInsetsCompat(inset).getInsets(WindowInsetsCompat.Type.systemBars()).top
+                (titleToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
+                (collapsingToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
+                return@setOnApplyWindowInsetsListener inset
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             val packagesList = packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
@@ -97,12 +110,6 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
         }
 
         return contentView
-    }
-
-    suspend fun setupRecyclerView() {
-        scope.launch {
-            val packageManager = requireContext()
-        }
     }
 
     companion object {

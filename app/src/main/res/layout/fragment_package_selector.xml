@@ -21,6 +21,7 @@
             style="@style/Widget.RevengeUI.CollapsingToolbar">
 
             <androidx.appcompat.widget.Toolbar
+                android:id="@+id/title_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:visibility="invisible"
@@ -49,5 +50,5 @@
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
