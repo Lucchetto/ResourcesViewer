@@ -48,11 +48,17 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
 
         val packageManager = contentView.context.packageManager
         val nameComparator = Comparator<PackageInfo> { arg0, arg1 ->
-            val name0 =
-                arg0?.applicationInfo?.loadLabel(packageManager).toString()
-            val name1 =
-                arg1?.applicationInfo?.loadLabel(packageManager).toString()
-            name0.compareTo(name1, ignoreCase = true)
+            if (arg0.packageName.equals("android")) {
+                -1
+            } else if (arg1.packageName.equals("android")) {
+                1
+            } else {
+                val name0 =
+                    arg0?.applicationInfo?.loadLabel(packageManager).toString()
+                val name1 =
+                    arg1?.applicationInfo?.loadLabel(packageManager).toString()
+                name0.compareTo(name1, ignoreCase = true)
+            }
         }
 
         val collapsingToolbar = contentView.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
