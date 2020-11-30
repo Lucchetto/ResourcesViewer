@@ -12,10 +12,10 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
 
 /**
  * A simple [Fragment] subclass.
- * Use the [ResourcesValueViewerFragment.newInstance] factory method to
+ * Use the [ResourcesFinderFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ResourcesValueViewerFragment : Fragment() {
+class ResourcesFinderFragment : Fragment() {
     private lateinit var searchButton : Button
     private lateinit var searchPackageView : EditText
     private lateinit var errorView: TextView
@@ -105,7 +105,7 @@ class ResourcesValueViewerFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() =
-            ResourcesValueViewerFragment().apply {
+            ResourcesFinderFragment().apply {
             }
     }
 }
