@@ -89,23 +89,32 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
             val packagesList = packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
-            val packagesAdapter = PackageItemAdapter(packageManager, packagesList, requireFragmentManager(), this@PackageSelectorFragment)
-            withContext(Dispatchers.Main) {
-                packagesAdapter.setupSearchFilter()
-                packagesRecyclerView.layoutManager = LinearLayoutManager(context)
-                packagesRecyclerView.adapter = packagesAdapter
-                contentView.findViewById<View>(R.id.loading_spinner).visibility = View.GONE
-                searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        return false
-                    }
+            try {
+                val packagesAdapter = PackageItemAdapter(
+                    packageManager,
+                    packagesList,
+                    requireFragmentManager(),
+                    this@PackageSelectorFragment
+                )
+                withContext(Dispatchers.Main) {
+                    packagesAdapter.setupSearchFilter()
+                    packagesRecyclerView.layoutManager = LinearLayoutManager(context)
+                    packagesRecyclerView.adapter = packagesAdapter
+                    contentView.findViewById<View>(R.id.loading_spinner).visibility = View.GONE
+                    searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                        override fun onQueryTextSubmit(query: String?): Boolean {
+                            return false
+                        }
 
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        packagesAdapter.filter.filter(newText)
-                        return false
-                    }
+                        override fun onQueryTextChange(newText: String?): Boolean {
+                            packagesAdapter.filter.filter(newText)
+                            return false
+                        }
 
-                })
+                    })
+                }
+            } catch (e : IllegalStateException) {
+                // Do nothing
             }
         }
 
