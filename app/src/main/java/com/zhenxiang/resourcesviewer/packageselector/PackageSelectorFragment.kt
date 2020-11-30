@@ -117,7 +117,6 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
                 // Do nothing
             }
         }
-
         return contentView
     }
 

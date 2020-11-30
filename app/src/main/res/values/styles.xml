@@ -3,4 +3,13 @@
     <style name="AppTheme" parent="@style/Theme.RevengeUI.DayNight">
     </style>
 
+    <style name="TextStyle.AppTheme.PackageSelector.Label" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:marqueeRepeatLimit">marquee_forever</item>
+    </style>
+
 </resources>

@@ -100,6 +100,7 @@ class PackageItemAdapter(
         fun bind(packageInfo: PackageInfo) {
             packageIcon.setImageDrawable(packageInfo.applicationInfo.loadIcon(packageManager))
             packageLabel.text = packageInfo.applicationInfo.loadLabel(packageManager)
+            packageLabel.isSelected = true
             packageName.text = packageInfo.packageName
             view.setOnClickListener { view ->
                 Log.d("DIOOOOO", packageInfo.packageName)
