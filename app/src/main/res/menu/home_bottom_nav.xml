@@ -6,4 +6,9 @@
         android:id="@+id/resource_finder"
         android:icon="@drawable/ic_search_24"
         android:title="@string/resource_finder_menu" />
+
+    <item
+        android:id="@+id/resources_explorer"
+        android:icon="@drawable/ic_list_24"
+        android:title="@string/resources_explorer_menu" />
 </menu>

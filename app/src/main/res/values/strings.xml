@@ -4,6 +4,9 @@
     <string name="resource_finder_title">Resource Finder</string>
     <string name="resource_finder_menu">Finder</string>
 
+    <string name="resources_explorer_title">Resources Explorer</string>
+    <string name="resources_explorer_menu">Explorer</string>
+
     <!-- Package selector -->
     <string name="package_selector_title">Select package</string>
 </resources>
