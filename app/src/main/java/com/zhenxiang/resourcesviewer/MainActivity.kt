@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.revengeos.revengeui.utils.NavigationModeUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +27,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.resources_explorer -> switchActiveFragment(explorerFragment)
             }
             true
+        }
+
+        if (NavigationModeUtils.isFullGestures(applicationContext)) {
+            val bottomNavBgColour = (bottomNav.background as MaterialShapeDrawable).fillColor!!.defaultColor
+            window.navigationBarColor = bottomNavBgColour
         }
     }
 
