@@ -37,7 +37,7 @@ class ResourceFinderFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val contentView = inflater.inflate(R.layout.fragment_resources_value_viewer, container, false)
+        val contentView = inflater.inflate(R.layout.fragment_resource_finder, container, false)
         searchPackageView = contentView.findViewById(R.id.package_to_search)
         searchButton = contentView.findViewById(R.id.search_button)
         errorView = contentView.findViewById(R.id.error_message)
