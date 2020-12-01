@@ -94,14 +94,9 @@ class PackageItemAdapter(
         private val fragment: Fragment
     ) : RecyclerView.ViewHolder(view) {
         val packageManager = view.context.packageManager
-        val packageIcon = view.findViewById<ImageView>(R.id.package_icon)
-        val packageLabel = view.findViewById<TextView>(R.id.package_label)
-        val packageName = view.findViewById<TextView>(R.id.package_name)
+        val packageView = view as PackageView
         fun bind(packageInfo: PackageInfo) {
-            packageIcon.setImageDrawable(packageInfo.applicationInfo.loadIcon(packageManager))
-            packageLabel.text = packageInfo.applicationInfo.loadLabel(packageManager)
-            packageLabel.isSelected = true
-            packageName.text = packageInfo.packageName
+            packageView.setPackageInfo(packageInfo.applicationInfo.loadIcon(packageManager), packageInfo.applicationInfo.loadLabel(packageManager).toString(), packageInfo.packageName)
             view.setOnClickListener { view ->
                 Log.d("DIOOOOO", packageInfo.packageName)
                 fragmentManager.beginTransaction().remove(fragment).commit()
