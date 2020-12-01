@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorFragment
+import com.zhenxiang.resourcesviewer.packageselector.PackageView
 import com.zhenxiang.resourcesviewer.util.PackageUtils
 import com.zhenxiang.resourcesviewer.util.ResourcesUtils
 
@@ -17,7 +18,7 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
  */
 class ResourceFinderFragment : Fragment() {
     private lateinit var searchButton : Button
-    private lateinit var searchPackageView : EditText
+    private lateinit var targetPackageView : PackageView
     private lateinit var errorView: TextView
     private lateinit var resDataView : View
     private lateinit var resNameView : EditText
@@ -26,7 +27,6 @@ class ResourceFinderFragment : Fragment() {
     private lateinit var resTypeView : TextView
     private lateinit var resValueView : TextView
     private lateinit var resTypeSpinner : Spinner
-    private lateinit var showPackageList : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +38,7 @@ class ResourceFinderFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val contentView = inflater.inflate(R.layout.fragment_resource_finder, container, false)
-        searchPackageView = contentView.findViewById(R.id.package_to_search)
+        targetPackageView = contentView.findViewById(R.id.target_package)
         searchButton = contentView.findViewById(R.id.search_button)
         errorView = contentView.findViewById(R.id.error_message)
         resDataView = contentView.findViewById(R.id.resource_data)
@@ -48,7 +48,6 @@ class ResourceFinderFragment : Fragment() {
         resTypeView = contentView.findViewById(R.id.resource_type)
         resValueView = contentView.findViewById(R.id.resource_value)
         resTypeSpinner = contentView.findViewById(R.id.resource_type_picker)
-        showPackageList = contentView.findViewById(R.id.show_packages_list)
 
         val spinnerArray : MutableList<String> = ArrayList()
         spinnerArray.add("Auto detect")
@@ -62,10 +61,10 @@ class ResourceFinderFragment : Fragment() {
             val resource : Resource?
             val searchPackage : String
 
-            searchPackage = if (searchPackageView.text.toString() == "") {
+            searchPackage = if (targetPackageView.getPackageName() == "") {
                 "android"
             } else {
-                searchPackageView.text.toString()
+                targetPackageView.getPackageName()
             }
 
             if (PackageUtils.isPackageInstalled(requireContext(), searchPackage)) {
@@ -89,8 +88,8 @@ class ResourceFinderFragment : Fragment() {
             }
         }
 
-        showPackageList.setOnClickListener { view ->
-            val packageSelector = PackageSelectorFragment()
+        targetPackageView.setOnClickListener { view ->
+            val packageSelector = PackageSelectorFragment(targetPackageView)
             packageSelector.show(requireFragmentManager(), "tag")
         }
         return contentView

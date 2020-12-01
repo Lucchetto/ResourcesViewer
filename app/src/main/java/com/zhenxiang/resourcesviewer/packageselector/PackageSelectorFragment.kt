@@ -29,7 +29,7 @@ import java.util.*
  * Use the [PackageSelectorFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class PackageSelectorFragment : FullscreenDialogFragment() {
+class PackageSelectorFragment(val packageView : PackageView) : FullscreenDialogFragment() {
 
     val TAG = this.javaClass.name
     private val scope = CoroutineScope(Job() + Dispatchers.Main)
@@ -100,7 +100,8 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
                     packageManager,
                     packagesList,
                     requireFragmentManager(),
-                    this@PackageSelectorFragment
+                    this@PackageSelectorFragment,
+                    packageView
                 )
                 withContext(Dispatchers.Main) {
                     packagesAdapter.setupSearchFilter()
@@ -124,13 +125,5 @@ class PackageSelectorFragment : FullscreenDialogFragment() {
             }
         }
         return contentView
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            PackageSelectorFragment()
-                .apply {
-                }
     }
 }

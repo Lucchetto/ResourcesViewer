@@ -38,4 +38,8 @@ class PackageView : LinearLayout {
         packageLabel.text = label
         packageName.text = name
     }
+
+    fun getPackageName() : String {
+        return packageName.text.toString()
+    }
 }
