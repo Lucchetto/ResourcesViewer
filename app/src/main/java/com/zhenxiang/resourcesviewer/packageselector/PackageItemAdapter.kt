@@ -19,26 +19,20 @@ import com.zhenxiang.resourcesviewer.R
 class PackageItemAdapter(
     packageManager: PackageManager,
     installedPackages: MutableList<PackageInfo>,
-    fragmentManager: FragmentManager,
-    fragment: Fragment,
-    packageView : PackageView
+    dialog : PackageSelectorDialog
 ) : RecyclerView.Adapter<PackageItemAdapter.ViewHolder>(), Filterable {
 
     private val packageManager : PackageManager
     private val mInstalledPackages: MutableList<PackageInfo>
     private val mInstalledPackagesAll : List<PackageInfo>
-    private val fragmentManager: FragmentManager
-    private val fragment : Fragment
-    private val packageView : PackageView
+    private val dialog : PackageSelectorDialog
     private lateinit var packageFilter : Filter
 
     init {
         this.packageManager = packageManager
         mInstalledPackages = installedPackages
         mInstalledPackagesAll = mInstalledPackages.toList()
-        this.fragmentManager = fragmentManager
-        this.fragment = fragment
-        this.packageView = packageView
+        this.dialog = dialog
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -49,11 +43,7 @@ class PackageItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return ViewHolder(
-            layoutInflater.inflate(R.layout.package_item, parent, false),
-            fragmentManager,
-            fragment,
-            packageView
-        )
+            layoutInflater.inflate(R.layout.package_item, parent, false), dialog)
     }
 
     override fun getItemCount(): Int {
@@ -94,17 +84,13 @@ class PackageItemAdapter(
 
     class ViewHolder(
         private val view: View,
-        private val fragmentManager: FragmentManager,
-        private val fragment: Fragment,
-        private val packageView: PackageView
+        private val dialog : PackageSelectorDialog
     ) : RecyclerView.ViewHolder(view) {
         val packageManager = view.context.packageManager
         fun bind(packageInfo: PackageInfo) {
             (view as PackageView).setPackageInfo(packageInfo.applicationInfo.loadIcon(packageManager), packageInfo.applicationInfo.loadLabel(packageManager).toString(), packageInfo.packageName)
             view.setOnClickListener { view ->
-                packageView.setPackageInfo(packageInfo.applicationInfo.loadIcon(packageManager), packageInfo.applicationInfo.loadLabel(packageManager).toString(), packageInfo.packageName)
-                fragmentManager.beginTransaction().remove(fragment).commit()
-
+                dialog.dismiss()
             }
         }
     }

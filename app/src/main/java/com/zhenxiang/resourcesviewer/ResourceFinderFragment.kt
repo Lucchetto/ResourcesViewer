@@ -6,7 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorFragment
+import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorDialog
+import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorView
 import com.zhenxiang.resourcesviewer.packageselector.PackageView
 import com.zhenxiang.resourcesviewer.util.PackageUtils
 import com.zhenxiang.resourcesviewer.util.ResourcesUtils
@@ -18,7 +19,7 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
  */
 class ResourceFinderFragment : Fragment() {
     private lateinit var searchButton : Button
-    private lateinit var targetPackageView : PackageView
+    private lateinit var targetPackageView : PackageSelectorView
     private lateinit var errorView: TextView
     private lateinit var resDataView : View
     private lateinit var resNameView : EditText
@@ -38,7 +39,7 @@ class ResourceFinderFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val contentView = inflater.inflate(R.layout.fragment_resource_finder, container, false)
-        targetPackageView = contentView.findViewById(R.id.target_package)
+        targetPackageView = contentView.findViewById(R.id.package_selector)
         searchButton = contentView.findViewById(R.id.search_button)
         errorView = contentView.findViewById(R.id.error_message)
         resDataView = contentView.findViewById(R.id.resource_data)
@@ -86,11 +87,6 @@ class ResourceFinderFragment : Fragment() {
             } else {
                 showError(true, "Package not found")
             }
-        }
-
-        targetPackageView.setOnClickListener { view ->
-            val packageSelector = PackageSelectorFragment(targetPackageView)
-            packageSelector.show(requireFragmentManager(), "tag")
         }
         return contentView
     }

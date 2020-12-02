@@ -1,9 +1,12 @@
 package com.zhenxiang.resourcesviewer.packageselector
 
+import android.app.Dialog
+import android.content.Context
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
@@ -12,45 +15,36 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.revengeos.revengeui.fragment.FullscreenDialogFragment
 import com.revengeos.revengeui.utils.NavigationModeUtils
 import com.zhenxiang.resourcesviewer.R
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.Comparator
 
-
-/**
- * A simple [Fragment] subclass.
- * Use the [PackageSelectorFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class PackageSelectorFragment(val packageView : PackageView) : FullscreenDialogFragment() {
+class PackageSelectorDialog : Dialog {
 
     val TAG = this.javaClass.name
-    private val scope = CoroutineScope(Job() + Dispatchers.Main)
+    private val packageManager : PackageManager
+    private val nameComparator : Comparator<PackageInfo>
+    var job : Job? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private lateinit var packagesRecyclerView : RecyclerView
+    private lateinit var toolbar : Toolbar
+    private lateinit var searchMenu : MenuItem
+    private lateinit var searchView : SearchView
+
+    constructor(context : Context) : this(context, 0) {
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
-        val packagesRecyclerView = contentView.findViewById<RecyclerView>(R.id.packages_list)
-
-        val packageManager = contentView.context.packageManager
-        val nameComparator = Comparator<PackageInfo> { arg0, arg1 ->
-            if (arg0.packageName.equals("android")) {
+    constructor(context : Context, themeResId : Int) : super(context, themeResId) {
+        packageManager = context.packageManager
+        nameComparator = Comparator { arg0, arg1 ->
+            if (arg0.packageName == "android") {
                 -1
-            } else if (arg1.packageName.equals("android")) {
+            } else if (arg1.packageName == "android") {
                 1
             } else {
                 val name0 =
@@ -60,11 +54,18 @@ class PackageSelectorFragment(val packageView : PackageView) : FullscreenDialogF
                 name0.compareTo(name1, ignoreCase = true)
             }
         }
+    }
 
-        val collapsingToolbar = contentView.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
-        val toolbar = contentView.findViewById<Toolbar>(R.id.package_selector_menu_toolbar)
-        val searchMenu = toolbar.menu.findItem(R.id.package_search)
-        val searchView = searchMenu.actionView as SearchView
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.fragment_package_selector)
+
+        packagesRecyclerView = findViewById(R.id.packages_list)
+        toolbar = findViewById(R.id.package_selector_menu_toolbar)
+        searchMenu = toolbar.menu.findItem(R.id.package_search)
+        searchView = searchMenu.actionView as SearchView
+        
+        val collapsingToolbar = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
         toolbar.setOnMenuItemClickListener {
             collapsingToolbar.isTitleEnabled = false
             if (it == searchMenu) {
@@ -81,33 +82,35 @@ class PackageSelectorFragment(val packageView : PackageView) : FullscreenDialogF
             true
         }
 
-        if (NavigationModeUtils.isFullGestures(requireContext())) {
-            dialog?.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
-            val titleToolbar = contentView.findViewById<Toolbar>(R.id.title_toolbar)
-            ViewCompat.setOnApplyWindowInsetsListener(contentView) { view, inset ->
+        if (NavigationModeUtils.isFullGestures(context)) {
+            window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
+            val titleToolbar = findViewById<Toolbar>(R.id.title_toolbar)
+            ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView!!) { view, inset ->
                 val topInset = WindowInsetsCompat(inset).getInsets(WindowInsetsCompat.Type.systemBars()).top
                 (titleToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
                 (collapsingToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
                 return@setOnApplyWindowInsetsListener inset
             }
         }
+    }
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+    override fun show() {
+        super.show()
+        job?.cancel()
+        job = CoroutineScope(Dispatchers.Default).launch() {
             val packagesList = packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
             try {
                 val packagesAdapter = PackageItemAdapter(
                     packageManager,
                     packagesList,
-                    requireFragmentManager(),
-                    this@PackageSelectorFragment,
-                    packageView
+                    this@PackageSelectorDialog
                 )
                 withContext(Dispatchers.Main) {
                     packagesAdapter.setupSearchFilter()
                     packagesRecyclerView.layoutManager = LinearLayoutManager(context)
                     packagesRecyclerView.adapter = packagesAdapter
-                    contentView.findViewById<View>(R.id.loading_spinner).visibility = View.GONE
+                    findViewById<View>(R.id.loading_spinner).visibility = View.GONE
                     searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {
                             return false
@@ -124,6 +127,10 @@ class PackageSelectorFragment(val packageView : PackageView) : FullscreenDialogF
                 // Do nothing
             }
         }
-        return contentView
+    }
+
+    override fun dismiss() {
+        super.dismiss()
+        job?.cancel()
     }
 }
