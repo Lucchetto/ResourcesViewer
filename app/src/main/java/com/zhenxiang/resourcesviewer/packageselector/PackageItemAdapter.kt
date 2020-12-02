@@ -19,13 +19,15 @@ import com.zhenxiang.resourcesviewer.R
 class PackageItemAdapter(
     packageManager: PackageManager,
     installedPackages: MutableList<PackageInfo>,
-    dialog : PackageSelectorDialog
+    dialog : PackageSelectorDialog,
+    packageSelectorView : PackageSelectorView
 ) : RecyclerView.Adapter<PackageItemAdapter.ViewHolder>(), Filterable {
 
     private val packageManager : PackageManager
     private val mInstalledPackages: MutableList<PackageInfo>
     private val mInstalledPackagesAll : List<PackageInfo>
     private val dialog : PackageSelectorDialog
+    private val packageSelectorView : PackageSelectorView
     private lateinit var packageFilter : Filter
 
     init {
@@ -33,6 +35,7 @@ class PackageItemAdapter(
         mInstalledPackages = installedPackages
         mInstalledPackagesAll = mInstalledPackages.toList()
         this.dialog = dialog
+        this.packageSelectorView = packageSelectorView
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -43,7 +46,8 @@ class PackageItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return ViewHolder(
-            layoutInflater.inflate(R.layout.package_item, parent, false), dialog)
+            layoutInflater.inflate(R.layout.package_item, parent, false), dialog,
+            packageSelectorView)
     }
 
     override fun getItemCount(): Int {
@@ -84,12 +88,15 @@ class PackageItemAdapter(
 
     class ViewHolder(
         private val view: View,
-        private val dialog : PackageSelectorDialog
+        private val dialog : PackageSelectorDialog,
+        private val packageSelectorView : PackageSelectorView
     ) : RecyclerView.ViewHolder(view) {
         val packageManager = view.context.packageManager
         fun bind(packageInfo: PackageInfo) {
             (view as PackageView).setPackageInfo(packageInfo.applicationInfo.loadIcon(packageManager), packageInfo.applicationInfo.loadLabel(packageManager).toString(), packageInfo.packageName)
             view.setOnClickListener { view ->
+                packageSelectorView.hintText.visibility = View.GONE
+                packageSelectorView.packageView.setPackageInfo(packageInfo.applicationInfo.loadIcon(packageManager), packageInfo.applicationInfo.loadLabel(packageManager).toString(), packageInfo.packageName)
                 dialog.dismiss()
             }
         }

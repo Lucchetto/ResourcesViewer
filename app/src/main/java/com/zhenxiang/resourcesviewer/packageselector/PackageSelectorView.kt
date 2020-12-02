@@ -10,8 +10,8 @@ import com.zhenxiang.resourcesviewer.R
 
 class PackageSelectorView : FrameLayout {
 
-    lateinit var hintText : TextView
-    lateinit var packageView : PackageView
+    val hintText : TextView
+    val packageView : PackageView
 
     constructor (context: Context) : this(context, null) {
     }
@@ -24,9 +24,10 @@ class PackageSelectorView : FrameLayout {
 
     constructor(context: Context, @Nullable attrs: AttributeSet?, defStyleAttr: Int, defStyleRes : Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         LayoutInflater.from(context).inflate(R.layout.package_selector_view, this, true);
-        val packageSelectorDialog = PackageSelectorDialog(context, R.style.Theme_RevengeUI_Dialog_Fullscreen)
-        val hintText = findViewById<TextView>(R.id.hint_text)
-        val packageView = findViewById<PackageView>(R.id.target_package)
+        hintText = findViewById<TextView>(R.id.hint_text)
+        packageView = findViewById<PackageView>(R.id.target_package)
+
+        val packageSelectorDialog = PackageSelectorDialog(context, this)
         packageView.setOnClickListener { view ->
             packageSelectorDialog.show()
         }

@@ -36,10 +36,13 @@ class PackageSelectorDialog : Dialog {
     private lateinit var searchMenu : MenuItem
     private lateinit var searchView : SearchView
 
-    constructor(context : Context) : this(context, 0) {
+    private val packageSelectorView : PackageSelectorView
+
+    constructor(context : Context, packageSelectorView : PackageSelectorView) : this(context, R.style.Theme_RevengeUI_Dialog_Fullscreen, packageSelectorView) {
     }
 
-    constructor(context : Context, themeResId : Int) : super(context, themeResId) {
+    constructor(context : Context, themeResId : Int, packageSelectorView : PackageSelectorView) : super(context, themeResId) {
+        this.packageSelectorView = packageSelectorView
         packageManager = context.packageManager
         nameComparator = Comparator { arg0, arg1 ->
             if (arg0.packageName == "android") {
@@ -104,7 +107,8 @@ class PackageSelectorDialog : Dialog {
                 val packagesAdapter = PackageItemAdapter(
                     packageManager,
                     packagesList,
-                    this@PackageSelectorDialog
+                    this@PackageSelectorDialog,
+                    packageSelectorView
                 )
                 withContext(Dispatchers.Main) {
                     packagesAdapter.setupSearchFilter()

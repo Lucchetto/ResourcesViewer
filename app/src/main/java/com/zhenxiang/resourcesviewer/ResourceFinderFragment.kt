@@ -6,9 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorDialog
 import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorView
-import com.zhenxiang.resourcesviewer.packageselector.PackageView
 import com.zhenxiang.resourcesviewer.util.PackageUtils
 import com.zhenxiang.resourcesviewer.util.ResourcesUtils
 
@@ -19,11 +17,10 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
  */
 class ResourceFinderFragment : Fragment() {
     private lateinit var searchButton : Button
-    private lateinit var targetPackageView : PackageSelectorView
+    private lateinit var packageSelector : PackageSelectorView
     private lateinit var errorView: TextView
     private lateinit var resDataView : View
     private lateinit var resNameView : EditText
-    private lateinit var packageNameView : TextView
     private lateinit var resIdView : TextView
     private lateinit var resTypeView : TextView
     private lateinit var resValueView : TextView
@@ -39,12 +36,11 @@ class ResourceFinderFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val contentView = inflater.inflate(R.layout.fragment_resource_finder, container, false)
-        targetPackageView = contentView.findViewById(R.id.package_selector)
+        packageSelector = contentView.findViewById(R.id.package_selector)
         searchButton = contentView.findViewById(R.id.search_button)
         errorView = contentView.findViewById(R.id.error_message)
         resDataView = contentView.findViewById(R.id.resource_data)
         resNameView = contentView.findViewById(R.id.resource_name)
-        packageNameView = contentView.findViewById(R.id.package_name)
         resIdView = contentView.findViewById(R.id.resource_id)
         resTypeView = contentView.findViewById(R.id.resource_type)
         resValueView = contentView.findViewById(R.id.resource_value)
@@ -60,13 +56,8 @@ class ResourceFinderFragment : Fragment() {
         searchButton.setOnClickListener { view ->
             val resName = resNameView.text.toString()
             val resource : Resource?
-            val searchPackage : String
 
-            searchPackage = if (targetPackageView.getPackageName() == "") {
-                "android"
-            } else {
-                targetPackageView.getPackageName()
-            }
+            val searchPackage = packageSelector.getPackageName()
 
             if (PackageUtils.isPackageInstalled(requireContext(), searchPackage)) {
                 resource = if (resTypeSpinner.selectedItemPosition == 0) {
@@ -79,13 +70,10 @@ class ResourceFinderFragment : Fragment() {
                     showError(true, "Resource not found")
                 } else {
                     showError(false, null)
-                    packageNameView.text = "Package name: ${resource.packageName}"
                     resIdView.text = "Id: 0x${Integer.toHexString(resource.resId)}";
                     resTypeView.text = "Type: ${resource.resType}"
                     resValueView.text = "Value: ${ResourcesUtils.getResourceValue(resource, requireContext())}"
                 }
-            } else {
-                showError(true, "Package not found")
             }
         }
         return contentView
