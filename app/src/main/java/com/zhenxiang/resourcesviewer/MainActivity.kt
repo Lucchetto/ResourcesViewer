@@ -10,17 +10,27 @@ import com.revengeos.revengeui.utils.NavigationModeUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private var activeFragment : HomeFragment? = null
     private lateinit var collapsingToolbar : CollapsingToolbarLayout
+    private lateinit var bottomNav : BottomNavigationView
+    private var activeFragment : Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        collapsingToolbar = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
-        val finderFragment = setupFragment(ResourceFinderFragment(), getString(R.string.resource_finder_title), R.id.resource_finder)
-        val explorerFragment = setupFragment(ResourcesExplorerFragment(), getString(R.string.resources_explorer_title), R.id.resources_explorer)
-        switchActiveFragment(finderFragment)
-        val bottomNav = findViewById<BottomNavigationView>(R.id.home_bottom_nav)
+        collapsingToolbar = findViewById(R.id.collapsing_toolbar_layout)
+
+        val finderFragment : Fragment
+        val explorerFragment : Fragment
+        if (savedInstanceState == null) {
+            finderFragment = setupFragment(ResourceFinderFragment(), getString(R.string.resource_finder_title))
+            explorerFragment = setupFragment(ResourcesExplorerFragment(), getString(R.string.resources_explorer_title))
+            switchActiveFragment(finderFragment)
+        } else {
+            finderFragment = supportFragmentManager.findFragmentByTag(getString(R.string.resource_finder_title))!!
+            explorerFragment = supportFragmentManager.findFragmentByTag(getString(R.string.resources_explorer_title))!!
+        }
+
+        bottomNav = findViewById(R.id.home_bottom_nav)
         bottomNav.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.resource_finder -> switchActiveFragment(finderFragment)
@@ -35,19 +45,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupFragment(fragment : Fragment, title : String, menuId : Int) : HomeFragment {
-        val newHomeFragment = HomeFragment(fragment, title, menuId)
-        supportFragmentManager.beginTransaction().add(R.id.main_content, fragment, title).hide(fragment).commit()
-        return newHomeFragment
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("selectedTab", bottomNav.selectedItemId)
+        super.onSaveInstanceState(outState)
     }
 
-    private fun switchActiveFragment(homeFragment : HomeFragment) {
-        if (homeFragment != activeFragment) {
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        bottomNav.selectedItemId = savedInstanceState.getInt("selectedTab")
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    private fun setupFragment(fragment : Fragment, title : String) : Fragment {
+        supportFragmentManager.beginTransaction().add(R.id.main_content, fragment, title).hide(fragment).commit()
+        return fragment
+    }
+
+    private fun switchActiveFragment(newFragment : Fragment) {
+        if (newFragment != activeFragment) {
             val transaction = supportFragmentManager.beginTransaction()
-            activeFragment?.let { transaction.hide(it.getFragment()) }
-            collapsingToolbar.title = homeFragment.getTitle()
-            transaction.show(homeFragment.getFragment()).commit()
-            activeFragment = homeFragment
+            activeFragment?.let { transaction.hide(it) }
+            collapsingToolbar.title = newFragment.tag
+            transaction.show(newFragment).commit()
+            activeFragment = newFragment
         }
     }
 }
