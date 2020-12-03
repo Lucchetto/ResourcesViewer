@@ -1,11 +1,13 @@
 package com.zhenxiang.resourcesviewer
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorFragment
 import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorView
 import com.zhenxiang.resourcesviewer.util.PackageUtils
 import com.zhenxiang.resourcesviewer.util.ResourcesUtils
@@ -15,7 +17,7 @@ import com.zhenxiang.resourcesviewer.util.ResourcesUtils
  * Use the [ResourceFinderFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ResourceFinderFragment : Fragment() {
+class ResourceFinderFragment : Fragment(), PackageSelectorFragment.PackageSelectorListener {
     private lateinit var searchButton : Button
     private lateinit var packageSelector : PackageSelectorView
     private lateinit var errorView: TextView
@@ -45,6 +47,10 @@ class ResourceFinderFragment : Fragment() {
         resTypeView = contentView.findViewById(R.id.resource_type)
         resValueView = contentView.findViewById(R.id.resource_value)
         resTypeSpinner = contentView.findViewById(R.id.resource_type_picker)
+
+        val packageSelectorFragment = PackageSelectorFragment()
+        packageSelectorFragment.setTargetFragment(this, 0)
+        packageSelector.setupPackageSelector(packageSelectorFragment, fragmentManager!!)
 
         val spinnerArray : MutableList<String> = ArrayList()
         spinnerArray.add("Auto detect")
@@ -90,5 +96,9 @@ class ResourceFinderFragment : Fragment() {
         fun newInstance() =
             ResourceFinderFragment().apply {
             }
+    }
+
+    override fun onPackageSelected(icon: Drawable, label: String, name: String) {
+        packageSelector.setPackageInfo(icon, label, name)
     }
 }

@@ -1,53 +1,63 @@
 package com.zhenxiang.resourcesviewer.packageselector
 
-import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AutoCompleteTextView
+import android.widget.ProgressBar
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.revengeos.revengeui.fragment.FullscreenDialogFragment
 import com.revengeos.revengeui.utils.NavigationModeUtils
 import com.zhenxiang.resourcesviewer.R
 import kotlinx.coroutines.*
 import java.util.*
-import kotlin.Comparator
 
-class PackageSelectorDialog : Dialog {
+
+/**
+ * A simple [Fragment] subclass.
+ * Use the [PackageSelectorFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class PackageSelectorFragment() : FullscreenDialogFragment() {
 
     val TAG = this.javaClass.name
-    private val packageManager : PackageManager
-    private val nameComparator : Comparator<PackageInfo>
-    var job : Job? = null
+
+    private lateinit var packageManager : PackageManager
+    private lateinit var nameComparator : Comparator<PackageInfo>
 
     private lateinit var packagesRecyclerView : RecyclerView
-    private lateinit var toolbar : Toolbar
-    private lateinit var searchMenu : MenuItem
     private lateinit var searchView : SearchView
+    private lateinit var loadingSpinner : ProgressBar
+    internal var callback: PackageSelectorListener? = null
 
-    private val packageSelectorView : PackageSelectorView
-
-    constructor(context : Context, packageSelectorView : PackageSelectorView) : this(context, R.style.Theme_RevengeUI_Dialog_Fullscreen, packageSelectorView) {
+    interface PackageSelectorListener {
+        fun onPackageSelected(icon : Drawable, label : String, name : String)
     }
 
-    constructor(context : Context, themeResId : Int, packageSelectorView : PackageSelectorView) : super(context, themeResId) {
-        this.packageSelectorView = packageSelectorView
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         packageManager = context.packageManager
-        nameComparator = Comparator { arg0, arg1 ->
-            if (arg0.packageName == "android") {
+
+        nameComparator = Comparator<PackageInfo> { arg0, arg1 ->
+            if (arg0.packageName.equals("android")) {
                 -1
-            } else if (arg1.packageName == "android") {
+            } else if (arg1.packageName.equals("android")) {
                 1
             } else {
                 val name0 =
@@ -61,14 +71,32 @@ class PackageSelectorDialog : Dialog {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_package_selector)
 
-        packagesRecyclerView = findViewById(R.id.packages_list)
-        toolbar = findViewById(R.id.package_selector_menu_toolbar)
-        searchMenu = toolbar.menu.findItem(R.id.package_search)
+        try {
+            callback = targetFragment as PackageSelectorListener?
+        } catch (e: ClassCastException) {
+            throw ClassCastException("Calling Fragment must implement PackageSelectorListener")
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val contentView = inflater.inflate(R.layout.fragment_package_selector, container, false)
+        return contentView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        packagesRecyclerView = view.findViewById(R.id.packages_list)
+        loadingSpinner = view.findViewById(R.id.loading_spinner)
+
+        val collapsingToolbar = view.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
+        val toolbar = view.findViewById<Toolbar>(R.id.package_selector_menu_toolbar)
+        val searchMenu = toolbar.menu.findItem(R.id.package_search)
         searchView = searchMenu.actionView as SearchView
-        
-        val collapsingToolbar = findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
         toolbar.setOnMenuItemClickListener {
             collapsingToolbar.isTitleEnabled = false
             if (it == searchMenu) {
@@ -85,36 +113,31 @@ class PackageSelectorDialog : Dialog {
             true
         }
 
-        if (NavigationModeUtils.isFullGestures(context)) {
-            window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
-            val titleToolbar = findViewById<Toolbar>(R.id.title_toolbar)
-            ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView!!) { view, inset ->
+        if (NavigationModeUtils.isFullGestures(requireContext())) {
+            dialog?.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
+            val titleToolbar = view.findViewById<Toolbar>(R.id.title_toolbar)
+            ViewCompat.setOnApplyWindowInsetsListener(view) { view, inset ->
                 val topInset = WindowInsetsCompat(inset).getInsets(WindowInsetsCompat.Type.systemBars()).top
                 (titleToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
                 (collapsingToolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin = topInset
                 return@setOnApplyWindowInsetsListener inset
             }
         }
-    }
 
-    override fun show() {
-        super.show()
-        job?.cancel()
-        job = CoroutineScope(Dispatchers.Default).launch() {
+        lifecycleScope.launch(Dispatchers.Default) {
             val packagesList = packageManager.getInstalledPackages(0)
             Collections.sort(packagesList, nameComparator)
             try {
                 val packagesAdapter = PackageItemAdapter(
                     packageManager,
                     packagesList,
-                    this@PackageSelectorDialog,
-                    packageSelectorView
+                    this@PackageSelectorFragment
                 )
                 withContext(Dispatchers.Main) {
                     packagesAdapter.setupSearchFilter()
                     packagesRecyclerView.layoutManager = LinearLayoutManager(context)
                     packagesRecyclerView.adapter = packagesAdapter
-                    findViewById<View>(R.id.loading_spinner).visibility = View.GONE
+                    loadingSpinner.visibility = View.GONE
                     searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?): Boolean {
                             return false
@@ -127,14 +150,9 @@ class PackageSelectorDialog : Dialog {
 
                     })
                 }
-            } catch (e : IllegalStateException) {
+            } catch (e: IllegalStateException) {
                 // Do nothing
             }
         }
-    }
-
-    override fun dismiss() {
-        super.dismiss()
-        job?.cancel()
     }
 }

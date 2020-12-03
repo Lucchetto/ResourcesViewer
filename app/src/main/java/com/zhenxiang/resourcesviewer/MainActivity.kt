@@ -10,14 +10,12 @@ import com.revengeos.revengeui.utils.NavigationModeUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var collapsingToolbar : CollapsingToolbarLayout
     private lateinit var bottomNav : BottomNavigationView
     private var activeFragment : Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        collapsingToolbar = findViewById(R.id.collapsing_toolbar_layout)
 
         val finderFragment : Fragment
         val explorerFragment : Fragment
@@ -64,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         if (newFragment != activeFragment) {
             val transaction = supportFragmentManager.beginTransaction()
             activeFragment?.let { transaction.hide(it) }
-            collapsingToolbar.title = newFragment.tag
             transaction.show(newFragment).commit()
             activeFragment = newFragment
         }
