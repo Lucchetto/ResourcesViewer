@@ -10,7 +10,7 @@ import com.revengeos.revengeui.utils.NavigationModeUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    //private lateinit var bottomNav : BottomNavigationView
+    private lateinit var bottomNav : BottomNavigationView
     private var activeFragment : Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,17 +18,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val finderFragment : Fragment
-        //val explorerFragment : Fragment
+        val explorerFragment : Fragment
         if (savedInstanceState == null) {
             finderFragment = setupFragment(ResourceFinderFragment(), getString(R.string.resource_finder_title))
-            //explorerFragment = setupFragment(ResourcesExplorerFragment(), getString(R.string.resources_explorer_title))
+            explorerFragment = setupFragment(ResourcesExplorerFragment(), getString(R.string.resources_explorer_title))
             switchActiveFragment(finderFragment)
         } else {
             finderFragment = supportFragmentManager.findFragmentByTag(getString(R.string.resource_finder_title))!!
-            //explorerFragment = supportFragmentManager.findFragmentByTag(getString(R.string.resources_explorer_title))!!
+            explorerFragment = supportFragmentManager.findFragmentByTag(getString(R.string.resources_explorer_title))!!
         }
 
-        /*bottomNav = findViewById(R.id.home_bottom_nav)
+        bottomNav = findViewById(R.id.home_bottom_nav)
         bottomNav.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.resource_finder -> switchActiveFragment(finderFragment)
@@ -40,16 +40,16 @@ class MainActivity : AppCompatActivity() {
         if (NavigationModeUtils.isFullGestures(applicationContext)) {
             val bottomNavBgColour = (bottomNav.background as MaterialShapeDrawable).fillColor!!.defaultColor
             window.navigationBarColor = bottomNavBgColour
-        }*/
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        //outState.putInt("selectedTab", bottomNav.selectedItemId)
+        outState.putInt("selectedTab", bottomNav.selectedItemId)
         super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        //bottomNav.selectedItemId = savedInstanceState.getInt("selectedTab")
+        bottomNav.selectedItemId = savedInstanceState.getInt("selectedTab")
         super.onRestoreInstanceState(savedInstanceState)
     }
 
