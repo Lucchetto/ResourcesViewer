@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorFragment
 import com.zhenxiang.resourcesviewer.packageselector.PackageSelectorView
+import com.zhenxiang.resourcesviewer.util.ReflectionUtils
 
 /**
  * A simple [Fragment] subclass.
@@ -44,5 +45,7 @@ class ResourcesExplorerFragment : Fragment(), PackageSelectorFragment.PackageSel
 
     override fun onPackageSelected(icon: Drawable, label: String, name: String) {
         packageSelector.setPackageInfo(icon, label, name)
+        val packageContext = ReflectionUtils.getPackageContext(context, name)
+        ReflectionUtils.getAllResourcesId(packageContext, name)
     }
 }
